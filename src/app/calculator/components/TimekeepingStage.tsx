@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Label } from '@/registry/new-york-v4/ui/label';
 import { Input } from '@/registry/new-york-v4/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/registry/new-york-v4/ui/select';
@@ -16,8 +17,30 @@ interface TimekeepingStageProps {
 }
 
 export default function TimekeepingStage({ data, onChange }: TimekeepingStageProps) {
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const validateNumberInput = (value: string, fieldName: string) => {
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      showToast(`Please enter numbers only for ${fieldName}`);
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2">
+          {toast}
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="feeEarners">How many fee-earners do you have?</Label>
@@ -27,7 +50,14 @@ export default function TimekeepingStage({ data, onChange }: TimekeepingStagePro
             min="1"
             placeholder="e.g., 15"
             value={data.feeEarners || ''}
-            onChange={(e) => onChange({ feeEarners: parseInt(e.target.value) || undefined })}
+            onChange={(e) => {
+              e.stopPropagation();
+              const value = e.target.value;
+              if (value !== '' && !validateNumberInput(value, 'fee-earners')) {
+                return;
+              }
+              onChange({ feeEarners: value === '' ? undefined : parseInt(value) || value });
+            }}
           />
           <p className="text-sm text-muted-foreground">
             Include partners, associates, and other billable staff
@@ -45,7 +75,14 @@ export default function TimekeepingStage({ data, onChange }: TimekeepingStagePro
               placeholder="250"
               className="pl-8"
               value={data.avgRate || ''}
-              onChange={(e) => onChange({ avgRate: parseInt(e.target.value) || undefined })}
+              onChange={(e) => {
+                e.stopPropagation();
+                const value = e.target.value;
+                if (value !== '' && !validateNumberInput(value, 'billing rate')) {
+                  return;
+                }
+                onChange({ avgRate: value === '' ? undefined : parseInt(value) || value });
+              }}
             />
           </div>
           <p className="text-sm text-muted-foreground">
@@ -66,7 +103,14 @@ export default function TimekeepingStage({ data, onChange }: TimekeepingStagePro
             step="0.5"
             placeholder="2"
             value={data.timesheetTime || ''}
-            onChange={(e) => onChange({ timesheetTime: parseFloat(e.target.value) || undefined })}
+            onChange={(e) => {
+              e.stopPropagation();
+              const value = e.target.value;
+              if (value !== '' && !validateNumberInput(value, 'timesheet hours')) {
+                return;
+              }
+              onChange({ timesheetTime: value === '' ? undefined : parseFloat(value) || value });
+            }}
           />
           <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
             hours/week

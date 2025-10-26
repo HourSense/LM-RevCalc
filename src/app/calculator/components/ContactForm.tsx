@@ -80,11 +80,11 @@ export default function ContactForm({ data, onChange, onSubmit, isSubmitting }: 
         </div>
 
         {/* What you'll receive */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 dark:bg-gray-900 dark:border-gray-800 h-fit">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 h-fit">
+          <h4 className="font-medium text-gray-900 mb-2">
             What you'll receive:
           </h4>
-          <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <ul className="text-sm text-gray-700 space-y-1">
             <li>• Detailed breakdown of your billing efficiency opportunities</li>
             <li>• Benchmarking against top-performing law firms</li>
             <li>• Specific recommendations for improvement</li>

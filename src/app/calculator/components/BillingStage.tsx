@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Label } from '@/registry/new-york-v4/ui/label';
 import { Input } from '@/registry/new-york-v4/ui/input';
 
@@ -13,8 +14,30 @@ interface BillingStageProps {
 }
 
 export default function BillingStage({ data, onChange }: BillingStageProps) {
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const validateNumberInput = (value: string, fieldName: string) => {
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      showToast(`Please enter numbers only for ${fieldName}`);
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2">
+          {toast}
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="monthlyInvoices">
           What is the average number of invoices you generate in a month?
@@ -25,7 +48,14 @@ export default function BillingStage({ data, onChange }: BillingStageProps) {
           min="1"
           placeholder="e.g., 50"
           value={data.monthlyInvoices || ''}
-          onChange={(e) => onChange({ monthlyInvoices: parseInt(e.target.value) || undefined })}
+          onChange={(e) => {
+            e.stopPropagation();
+            const value = e.target.value;
+            if (value !== '' && !validateNumberInput(value, 'monthly invoices')) {
+              return;
+            }
+            onChange({ monthlyInvoices: value === '' ? undefined : parseInt(value) || value });
+          }}
         />
         <p className="text-sm text-muted-foreground">
           Include all client invoices sent per month
@@ -42,7 +72,14 @@ export default function BillingStage({ data, onChange }: BillingStageProps) {
           min="1"
           placeholder="e.g., 3"
           value={data.peopleInvolved || ''}
-          onChange={(e) => onChange({ peopleInvolved: parseInt(e.target.value) || undefined })}
+          onChange={(e) => {
+            e.stopPropagation();
+            const value = e.target.value;
+            if (value !== '' && !validateNumberInput(value, 'people involved')) {
+              return;
+            }
+            onChange({ peopleInvolved: value === '' ? undefined : parseInt(value) || value });
+          }}
         />
         <p className="text-sm text-muted-foreground">
           Include finance staff, partners, associates - anyone who reviews or approves invoices
@@ -60,7 +97,14 @@ export default function BillingStage({ data, onChange }: BillingStageProps) {
             placeholder="400"
             className="pl-8"
             value={data.partnerRate || ''}
-            onChange={(e) => onChange({ partnerRate: parseInt(e.target.value) || undefined })}
+            onChange={(e) => {
+              e.stopPropagation();
+              const value = e.target.value;
+              if (value !== '' && !validateNumberInput(value, 'partner rate')) {
+                return;
+              }
+              onChange({ partnerRate: value === '' ? undefined : parseInt(value) || value });
+            }}
           />
         </div>
         <p className="text-sm text-muted-foreground">
@@ -68,11 +112,11 @@ export default function BillingStage({ data, onChange }: BillingStageProps) {
         </p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-950 dark:border-blue-800">
-        <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-medium text-blue-900 mb-2">
           Why this matters
         </h4>
-        <p className="text-sm text-blue-800 dark:text-blue-200">
+        <p className="text-sm text-blue-800">
           The more people involved in invoice generation, the more time (and money) spent on
           back-and-forth reviews. Top-performing firms streamline this process to just 15-30
           minutes per invoice.
