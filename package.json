@@ -11,7 +11,8 @@
         "lint": "next lint",
         "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "postinstall": "npx puppeteer browsers install chrome"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.2.2",
