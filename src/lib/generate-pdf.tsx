@@ -365,7 +365,7 @@ const PDFDocument = ({ results }: { results: CalculatorResults }) => {
 
 export async function generatePDF(results: CalculatorResults): Promise<Buffer> {
     // Generate PDF using React-PDF (no browser needed!)
-    const doc = React.createElement(PDFDocument, { results });
+    const doc = <PDFDocument results={results} />;
     const asPdf = pdf(doc);
     const blob = await asPdf.toBlob();
     const arrayBuffer = await blob.arrayBuffer();
