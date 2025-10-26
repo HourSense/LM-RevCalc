@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
 import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
 
 interface CalculatorResults {
     feeEarners: number;
@@ -654,19 +655,54 @@ function generateHTMLTemplate(results: CalculatorResults): string {
 }
 
 export async function generatePDF(results: CalculatorResults): Promise<Buffer> {
-    // Generate the content pages using puppeteer
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu'
-        ]
-    });
+    // Check if we're in a serverless environment (Vercel, Railway, etc.)
+    const isServerless = process.env.VERCEL || process.env.RAILWAY_PROJECT_ID || process.env.NODE_ENV === 'production';
+
+    let browser;
+
+    try {
+        if (isServerless) {
+            // Use serverless chromium in production/serverless environments
+            browser = await puppeteer.launch({
+                args: chromium.args,
+                defaultViewport: chromium.defaultViewport,
+                executablePath: await chromium.executablePath(),
+                headless: chromium.headless,
+            });
+        } else {
+            // Use local Chrome/Chromium for development
+            browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            });
+        }
+    } catch (error) {
+        console.error('Failed to launch browser:', error);
+        // Fallback: try the other approach
+        if (isServerless) {
+            browser = await puppeteer.launch({
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            });
+        } else {
+            browser = await puppeteer.launch({
+                args: chromium.args,
+                defaultViewport: chromium.defaultViewport,
+                executablePath: await chromium.executablePath(),
+                headless: chromium.headless,
+            });
+        }
+    }
 
     try {
         const page = await browser.newPage();
