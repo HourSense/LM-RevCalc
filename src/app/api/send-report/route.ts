@@ -6,8 +6,6 @@ import { generatePDF } from '@/lib/generate-pdf';
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 interface CalculatorResults {
     feeEarners: number;
     avgRate: number;
@@ -53,6 +51,13 @@ export async function POST(request: Request) {
         const pdfBuffer = await generatePDF(results);
 
         console.log('PDF generated successfully, sending email...');
+
+        // Initialize Resend client
+        const resendApiKey = process.env.RESEND_API_KEY;
+        if (!resendApiKey) {
+            throw new Error('RESEND_API_KEY environment variable is not set');
+        }
+        const resend = new Resend(resendApiKey);
 
         // Send email with Resend
         const { data: emailData, error: emailError } = await resend.emails.send({
