@@ -1,12 +1,12 @@
-import HomePage from '@/app/(delete-this-and-modify-page.tsx)/HomePage';
+import CalculatorPage from '@/app/calculator/page';
 
 /**
- * The main page component that renders the HomePage component.
+ * The main page component that renders the Calculator page.
  *
- * @returns {JSX.Element} The rendered HomePage component.
+ * @returns {JSX.Element} The rendered Calculator component.
  */
 const Page = () => {
-    return <HomePage />;
+    return <CalculatorPage />;
 };
 
 export default Page;
